@@ -1,0 +1,79 @@
+---
+- name: Deploy Flask app to web servers
+  hosts: webservers
+  become: yes
+
+  vars:
+    app_dir: /home/ubuntu/app
+    venv_dir: /home/ubuntu/app/venv
+
+  tasks:
+
+    - name: Ensure app directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Ensure python3-venv is installed
+      apt:
+        name: python3-venv
+        state: present
+        update_cache: yes
+
+    - name: Create Python virtual environment
+      command: python3 -m venv {{ venv_dir }}
+      args:
+        creates: "{{ venv_dir }}/bin/activate"
+      become_user: ubuntu
+
+    - name: Install Flask inside venv
+      pip:
+        name: flask
+        virtualenv: "{{ venv_dir }}"
+        state: present
+
+    - name: Copy Flask app to server
+      copy:
+        src: ~/aws-iac-asg.tf/app.py
+        dest: "{{ app_dir }}/app.py"
+        owner: ubuntu
+        group: ubuntu
+        mode: "0644"
+      notify: Restart Flask
+
+    - name: Create systemd service for Flask
+      copy:
+        content: |
+          [Unit]
+          Description=Flask IaC Demo App
+          After=network.target
+
+          [Service]
+          User=root
+          WorkingDirectory={{ app_dir }}
+          ExecStart={{ venv_dir }}/bin/python {{ app_dir }}/app.py
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/flaskapp.service
+        mode: "0644"
+      notify: Restart Flask
+
+    - name: Enable and start Flask service
+      systemd:
+        name: flaskapp
+        enabled: yes
+        daemon_reload: yes
+        state: started
+
+  handlers:
+    - name: Restart Flask
+      systemd:
+        name: flaskapp
+        state: restarted
+        daemon_reload: yes
