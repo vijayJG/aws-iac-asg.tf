@@ -1,5 +1,5 @@
 # ============================================================
-# variables.tf — All configurable values in one place
+# variables.tf - All configurable values in one place
 # Mumbai (ap-south-1) configured throughout
 # ============================================================
 
@@ -16,13 +16,13 @@ variable "project_name" {
 }
 
 variable "instance_type" {
-  description = "EC2 instance type — t3.micro is free tier eligible"
+  description = "EC2 instance type - t3.micro is free tier eligible"
   type        = string
   default     = "t3.micro"
 }
 
 variable "ami_id" {
-  description = "Amazon Linux 2 AMI for ap-south-1 (Mumbai)"
+  description = "Ubuntu 24.04 LTS AMI for ap-south-1 (Mumbai)"
   type        = string
   default     = "ami-0f58b397bc5c1f2e8"
 }
@@ -34,7 +34,7 @@ variable "key_pair_name" {
 }
 
 variable "desired_capacity" {
-  description = "ASG desired capacity — set to 1 while configuring"
+  description = "ASG desired capacity - set to 1 while configuring"
   type        = number
   default     = 1
 }

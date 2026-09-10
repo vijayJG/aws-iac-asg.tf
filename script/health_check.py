@@ -85,7 +85,7 @@ def run_report():
     if all_healthy:
         print("ALL INSTANCES HEALTHY")
     else:
-        print("OME INSTANCES UNHEALTHY")
+        print("SOME INSTANCES UNHEALTHY")
     print("=" * 60 + "\n")
 
 if __name__ == "__main__":
